@@ -9,21 +9,15 @@
 #include "sm7250.dtsi"
 
 / {
-	model = "Google Pixel 4a (5G)";
-	compatible = "google,bramble", "qcom,sm7250";
-	qcom,msm-id = <415 0x20000>;
-	qcom,board-id = <0x10008 0x0>;
-
-	aliases {
-		serial0 = &qupv3_se0_2uart;
-	};
+	model = "Google Inc. MSM sm7250 v2 Bramble PVT";
+	compatible = "google,bramble-sm7250", "google,bramble", "qcom,sm7250";
+	qcom,msm-id = <400 0x20000>, <440 0x20000>;
+	qcom,board-id = <0x0a1e05 0>;
 
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
-
-		stdout-path = "serial0:115200n8";
 
 		framebuffer: framebuffer@0 {
 			compatible = "simple-framebuffer";
@@ -35,21 +29,6 @@
 		device_type = "memory";
 		/* 6 GB LPDDR4X RAM */
 		reg = <0x0 0x80000000 0x1 0x80000000>;
-	};
-
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		ramoops@b7e41000 {
-			compatible = "ramoops";
-			reg = <0x0 0xb7e41000 0x0 0x400000>;
-			record-size = <0x40000>;
-			console-size = <0x40000>;
-			ftrace-size = <0x40000>;
-			pmsg-size = <0x40000>;
-		};
 	};
 
 	reg_vdda_pll: regulator-vdda-pll {
@@ -76,7 +55,7 @@
 		compatible = "qcom,geni-uart";
 		reg = <0x0 0x00894000 0x0 0x4000>;
 		interrupts = <GIC_SPI 583 IRQ_TYPE_LEVEL_HIGH>;
-		status = "okay";
+		status = "disabled";
 
 		bluetooth {
 			compatible = "qcom,wcn3990-bt";

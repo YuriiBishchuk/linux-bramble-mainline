@@ -105,6 +105,158 @@
 			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
 	};
 
+	reserved_memory: reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		hyp_mem: memory@80000000 {
+			reg = <0x0 0x80000000 0x0 0x600000>;
+			no-map;
+		};
+
+		xbl_aop_mem: memory@80700000 {
+			reg = <0x0 0x80700000 0x0 0x160000>;
+			no-map;
+		};
+
+		cmd_db: memory@80860000 {
+			compatible = "qcom,cmd-db";
+			reg = <0x0 0x80860000 0x0 0x20000>;
+			no-map;
+		};
+
+		res_xbl_uefi_log: memory@80880000 {
+			reg = <0x0 0x80880000 0x0 0x14000>;
+			no-map;
+		};
+
+		sec_apps_mem: memory@808ff000 {
+			reg = <0x0 0x808ff000 0x0 0x1000>;
+			no-map;
+		};
+
+		smem_mem: memory@80900000 {
+			compatible = "qcom,smem";
+			reg = <0x0 0x80900000 0x0 0x200000>;
+			no-map;
+		};
+
+		removed_mem: memory@80b00000 {
+			reg = <0x0 0x80b00000 0x0 0x1300000>;
+			no-map;
+		};
+
+		qtee_apps_mem: memory@81e00000 {
+			reg = <0x0 0x81e00000 0x0 0x2600000>;
+			no-map;
+		};
+
+		pil_camera_mem: memory@86000000 {
+			reg = <0x0 0x86000000 0x0 0x500000>;
+			no-map;
+		};
+
+		pil_npu_mem: memory@86500000 {
+			reg = <0x0 0x86500000 0x0 0x500000>;
+			no-map;
+		};
+
+		pil_video_mem: memory@86a00000 {
+			reg = <0x0 0x86a00000 0x0 0x500000>;
+			no-map;
+		};
+
+		pil_cdsp_mem: memory@87400000 {
+			reg = <0x0 0x87400000 0x0 0x1e00000>;
+			no-map;
+		};
+
+		pil_adsp_mem: memory@89200000 {
+			reg = <0x0 0x89200000 0x0 0x2800000>;
+			no-map;
+		};
+
+		pil_wlan_fw_mem: memory@8ba00000 {
+			reg = <0x0 0x8ba00000 0x0 0x200000>;
+			no-map;
+		};
+
+		pil_ipa_fw_mem: memory@8bc00000 {
+			reg = <0x0 0x8bc00000 0x0 0x10000>;
+			no-map;
+		};
+
+		pil_ipa_gsi_mem: memory@8bc10000 {
+			reg = <0x0 0x8bc10000 0x0 0x5400>;
+			no-map;
+		};
+
+		pil_gpu_mem: memory@8bc15400 {
+			reg = <0x0 0x8bc15400 0x0 0x2000>;
+			no-map;
+		};
+
+		reserved_pil_mem: memory@8bc17400 {
+			reg = <0x0 0x8bc17400 0x0 0x3e8c00>;
+			no-map;
+		};
+
+		modem_wlan_mem: memory@8c000000 {
+			reg = <0x0 0x8c000000 0x0 0x11800000>;
+			no-map;
+		};
+
+		cdsp_sec_mem: memory@9f400000 {
+			reg = <0x0 0x9f400000 0x0 0xc00000>;
+			no-map;
+		};
+
+		cont_splash_mem: memory@a0000000 {
+			reg = <0x0 0xa0000000 0x0 0x2300000>;
+			no-map;
+		};
+
+		dfps_data_mem: memory@a2300000 {
+			reg = <0x0 0xa2300000 0x0 0x100000>;
+			no-map;
+		};
+
+		debug_info: memory@b7e01000 {
+			reg = <0x0 0xb7e01000 0x0 0x40000>;
+			no-map;
+		};
+
+		ramoops_mem: memory@b7e41000 {
+			compatible = "ramoops";
+			reg = <0x0 0xb7e41000 0x0 0x400000>;
+			record-size = <0x40000>;
+			console-size = <0x40000>;
+			ftrace-size = <0x40000>;
+			pmsg-size = <0x40000>;
+		};
+
+		alt_ramoops_mem: memory@b8241000 {
+			reg = <0x0 0xb8241000 0x0 0x400000>;
+			no-map;
+		};
+
+		ramoops_meta_mem: memory@b8641000 {
+			reg = <0x0 0xb8641000 0x0 0x1000>;
+			no-map;
+		};
+
+		ramdumplog_mem: memory@b8642000 {
+			reg = <0x0 0xb8642000 0x0 0x10000>;
+			no-map;
+		};
+
+		kregistry_mem: memory@c8000000 {
+			reg = <0x0 0xc8000000 0x0 0x10000>;
+			no-map;
+		};
+	};
+
 	soc: soc@0 {
 		#address-cells = <2>;
 		#size-cells = <2>;
