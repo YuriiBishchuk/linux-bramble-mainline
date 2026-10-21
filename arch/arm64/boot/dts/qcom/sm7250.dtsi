@@ -15,6 +15,22 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	clocks {
+		xo_board: xo-board {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <38400000>;
+			clock-output-names = "xo_board";
+		};
+
+		sleep_clk: sleep-clk {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <32764>;
+			clock-output-names = "sleep_clk";
+		};
+	};
+
 	cpus {
 		#address-cells = <2>;
 		#size-cells = <0>;
@@ -113,6 +129,57 @@
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
+		};
+
+		usb_1_hsphy: phy@88e3000 {
+			compatible = "qcom,sm7250-usb-hs-phy",
+				     "qcom,usb-snps-femto-v2-phy";
+			reg = <0x0 0x088e3000 0x0 0x400>;
+			#phy-cells = <0>;
+			clocks = <&xo_board>;
+			clock-names = "ref";
+			resets = <&gcc GCC_QUSB2PHY_PRIM_BCR>;
+			status = "disabled";
+		};
+
+		usb_1: usb@a600000 {
+			compatible = "qcom,sm7250-dwc3", "qcom,snps-dwc3";
+			reg = <0x0 0x0a600000 0x0 0xcd00>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			clocks = <&gcc GCC_CFG_NOC_USB3_PRIM_AXI_CLK>,
+				 <&gcc GCC_USB30_PRIM_MASTER_CLK>,
+				 <&gcc GCC_AGGRE_USB3_PRIM_AXI_CLK>,
+				 <&gcc GCC_USB30_PRIM_SLEEP_CLK>,
+				 <&gcc GCC_USB30_PRIM_MOCK_UTMI_CLK>,
+				 <&gcc GCC_USB3_PRIM_CLKREF_CLK>;
+			clock-names = "cfg_noc",
+				      "core",
+				      "iface",
+				      "sleep",
+				      "mock_utmi",
+				      "xo";
+
+			resets = <&gcc GCC_USB30_PRIM_BCR>;
+
+			interrupts-extended = <&intc GIC_SPI 144 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "pwr_event";
+
+			status = "disabled";
+
+			usb_1_dwc3: usb@a600000 {
+				compatible = "snps,dwc3";
+				reg = <0x0 0x0a600000 0x0 0xcd00>;
+				interrupts = <GIC_SPI 240 IRQ_TYPE_LEVEL_HIGH>;
+				phys = <&usb_1_hsphy>;
+				phy-names = "usb2-phy";
+				maximum-speed = "high-speed";
+				dr_mode = "peripheral";
+				snps,dis_u2_susphy_quirk;
+				snps,dis_enblslpm_quirk;
+			};
 		};
 	};
 };

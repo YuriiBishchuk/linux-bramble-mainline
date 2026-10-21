@@ -66,3 +66,11 @@
 		};
 	};
 };
+
+&usb_1_hsphy {
+	status = "okay";
+};
+
+&usb_1 {
+	status = "okay";
+};
