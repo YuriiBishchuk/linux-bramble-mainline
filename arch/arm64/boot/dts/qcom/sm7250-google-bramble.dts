@@ -1,0 +1,68 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2026, Yurii Bishchuk
+ * Device Tree Source for Google Pixel 4a (5G) (bramble)
+ */
+
+/dts-v1/;
+
+#include "sm7250.dtsi"
+
+/ {
+	model = "Google Pixel 4a (5G)";
+	compatible = "google,bramble", "qcom,sm7250";
+	qcom,msm-id = <415 0x20000>;
+	qcom,board-id = <0x10008 0x0>;
+
+	aliases {
+		serial0 = &qupv3_se0_2uart;
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		stdout-path = "serial0:115200n8";
+
+		framebuffer: framebuffer@0 {
+			compatible = "simple-framebuffer";
+			status = "disabled";
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		/* 6 GB LPDDR4X RAM */
+		reg = <0x0 0x80000000 0x1 0x80000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		ramoops@b7e41000 {
+			compatible = "ramoops";
+			reg = <0x0 0xb7e41000 0x0 0x400000>;
+			record-size = <0x40000>;
+			console-size = <0x40000>;
+			ftrace-size = <0x40000>;
+			pmsg-size = <0x40000>;
+		};
+	};
+};
+
+&soc {
+	qupv3_se0_2uart: serial@894000 {
+		compatible = "qcom,geni-uart";
+		reg = <0x0 0x00894000 0x0 0x4000>;
+		interrupts = <GIC_SPI 583 IRQ_TYPE_LEVEL_HIGH>;
+		status = "okay";
+
+		bluetooth {
+			compatible = "qcom,wcn3990-bt";
+			max-speed = <3200000>;
+		};
+	};
+};
