@@ -142,12 +142,13 @@
 			status = "disabled";
 		};
 
-		usb_1: usb@a600000 {
+		usb_1: usb@a6f8800 {
 			compatible = "qcom,sm7250-dwc3", "qcom,snps-dwc3";
-			reg = <0x0 0x0a600000 0x0 0xcd00>;
+			reg = <0x0 0x0a6f8800 0x0 0x400>;
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges;
+			dma-ranges;
 
 			clocks = <&gcc GCC_CFG_NOC_USB3_PRIM_AXI_CLK>,
 				 <&gcc GCC_USB30_PRIM_MASTER_CLK>,
@@ -161,6 +162,10 @@
 				      "sleep",
 				      "mock_utmi",
 				      "xo";
+
+			assigned-clocks = <&gcc GCC_USB30_PRIM_MOCK_UTMI_CLK>,
+					  <&gcc GCC_USB30_PRIM_MASTER_CLK>;
+			assigned-clock-rates = <19200000>, <200000000>;
 
 			resets = <&gcc GCC_USB30_PRIM_BCR>;
 
@@ -179,6 +184,8 @@
 				dr_mode = "peripheral";
 				snps,dis_u2_susphy_quirk;
 				snps,dis_enblslpm_quirk;
+				snps,dis-u1-entry-quirk;
+				snps,dis-u2-entry-quirk;
 			};
 		};
 	};
