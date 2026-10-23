@@ -98,6 +98,12 @@
 	status = "okay";
 };
 
+&usb_1_qmpphy {
+	vdda-phy-supply = <&reg_vdda18>;
+	vdda-pll-supply = <&reg_vdda_pll>;
+	status = "okay";
+};
+
 &usb_1 {
 	status = "okay";
 };
