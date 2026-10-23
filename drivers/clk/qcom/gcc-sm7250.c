@@ -26,6 +26,7 @@
 #include "clk-regmap.h"
 #include "common.h"
 #include "reset.h"
+#include "gdsc.h"
 
 #define GCC_NPU_MISC				0x4d110
 #define GCC_GPU_MISC				0x71028
@@ -2443,12 +2444,26 @@ static const struct regmap_config gcc_lito_regmap_config = {
 	.fast_io	= true,
 };
 
+static struct gdsc usb30_prim_gdsc = {
+	.gdscr = 0xf004,
+	.pd = {
+		.name = "usb30_prim_gdsc",
+	},
+	.pwrsts = PWRSTS_RET_ON,
+};
+
+static struct gdsc *gcc_lito_gdscs[] = {
+	[USB30_PRIM_GDSC] = &usb30_prim_gdsc,
+};
+
 static const struct qcom_cc_desc gcc_lito_desc = {
 	.config = &gcc_lito_regmap_config,
 	.clks = gcc_lito_clocks,
 	.num_clks = ARRAY_SIZE(gcc_lito_clocks),
 	.resets = gcc_lito_resets,
 	.num_resets = ARRAY_SIZE(gcc_lito_resets),
+	.gdscs = gcc_lito_gdscs,
+	.num_gdscs = ARRAY_SIZE(gcc_lito_gdscs),
 };
 
 static const struct of_device_id gcc_sm7250_match_table[] = {

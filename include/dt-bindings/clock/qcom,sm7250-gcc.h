@@ -167,4 +167,7 @@
 #define GCC_USB3_DP_PHY_PRIM_BCR				16
 #define GCC_USB3_PHY_PRIM_BCR					17
 
+/* GDSC indices */
+#define USB30_PRIM_GDSC					0
+
 #endif

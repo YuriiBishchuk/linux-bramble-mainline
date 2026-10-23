@@ -19,16 +19,36 @@
 		#size-cells = <2>;
 		ranges;
 
-		framebuffer: framebuffer@0 {
+		framebuffer: framebuffer@a0000000 {
 			compatible = "simple-framebuffer";
-			status = "disabled";
+			reg = <0x0 0xa0000000 0x0 0x2300000>;
+			width = <1080>;
+			height = <2340>;
+			stride = <4320>;
+			format = "a8r8g8b8";
+			status = "okay";
 		};
 	};
 
+	/*
+	 * Match the live Android memory map exactly.  The 0xbcc00000-0xc0000000
+	 * range is not RAM, and the upper 4 GiB is a separate bank.  A single
+	 * contiguous 6 GiB node makes Linux touch the hole and panic before
+	 * userspace.
+	 */
 	memory@80000000 {
 		device_type = "memory";
-		/* 6 GB LPDDR4X RAM */
-		reg = <0x0 0x80000000 0x1 0x80000000>;
+		reg = <0x0 0x80000000 0x0 0x3cc00000>;
+	};
+
+	memory@c0000000 {
+		device_type = "memory";
+		reg = <0x0 0xc0000000 0x0 0x40000000>;
+	};
+
+	memory@100000000 {
+		device_type = "memory";
+		reg = <0x1 0x00000000 0x1 0x00000000>;
 	};
 
 	reg_vdda_pll: regulator-vdda-pll {
@@ -51,6 +71,7 @@
 };
 
 &soc {
+
 	qupv3_se0_2uart: serial@894000 {
 		compatible = "qcom,geni-uart";
 		reg = <0x0 0x00894000 0x0 0x4000>;
@@ -62,6 +83,12 @@
 			max-speed = <3200000>;
 		};
 	};
+};
+
+&tlmm {
+	gpio-reserved-ranges = <0 4>;
+
+
 };
 
 &usb_1_hsphy {

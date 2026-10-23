@@ -23,6 +23,20 @@
 			clock-output-names = "xo_board";
 		};
 
+		bi_tcxo: bi-tcxo {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <19200000>;
+			clock-output-names = "bi_tcxo";
+		};
+
+		bi_tcxo_ao: bi-tcxo-ao {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <19200000>;
+			clock-output-names = "bi_tcxo_ao";
+		};
+
 		sleep_clk: sleep-clk {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
@@ -99,10 +113,19 @@
 
 	timer {
 		compatible = "arm,armv8-timer";
-		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
-			     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
-			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
-			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
+		clock-frequency = <19200000>;
+		interrupts = <GIC_PPI 1 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 2 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 3 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 0 IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	watchdog@17c10000 {
+		compatible = "qcom,kpss-wdt";
+		reg = <0x0 0x17c10000 0x0 0x1000>;
+		clocks = <&sleep_clk>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
 	};
 
 	reserved_memory: reserved-memory {
@@ -230,6 +253,7 @@
 		ramoops_mem: memory@b7e41000 {
 			compatible = "ramoops";
 			reg = <0x0 0xb7e41000 0x0 0x400000>;
+			no-map;
 			record-size = <0x40000>;
 			console-size = <0x40000>;
 			ftrace-size = <0x40000>;
@@ -270,7 +294,7 @@
 			interrupt-controller;
 			reg = <0x0 0x17a00000 0x0 0x10000>,
 			      <0x0 0x17a60000 0x0 0x100000>;
-			interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_PPI 8 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		tlmm: pinctrl@f000000 {
@@ -286,6 +310,8 @@
 		gcc: clock-controller@100000 {
 			compatible = "qcom,gcc-sm7250";
 			reg = <0x0 0x00100000 0x0 0x1f0000>;
+			clocks = <&bi_tcxo>, <&bi_tcxo_ao>, <&sleep_clk>;
+			clock-names = "bi_tcxo", "bi_tcxo_ao", "sleep_clk";
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
@@ -296,14 +322,15 @@
 				     "qcom,usb-snps-femto-v2-phy";
 			reg = <0x0 0x088e3000 0x0 0x400>;
 			#phy-cells = <0>;
-			clocks = <&xo_board>;
-			clock-names = "ref";
+			clocks = <&gcc GCC_CFG_NOC_USB3_PRIM_AXI_CLK>,
+				 <&bi_tcxo>;
+			clock-names = "cfg_ahb", "ref";
 			resets = <&gcc GCC_QUSB2PHY_PRIM_BCR>;
 			status = "disabled";
 		};
 
 		usb_1: usb@a6f8800 {
-			compatible = "qcom,sm7250-dwc3", "qcom,snps-dwc3";
+			compatible = "qcom,sm7250-dwc3", "qcom,dwc3";
 			reg = <0x0 0x0a6f8800 0x0 0x400>;
 			#address-cells = <2>;
 			#size-cells = <2>;
@@ -328,6 +355,7 @@
 			assigned-clock-rates = <19200000>, <200000000>;
 
 			resets = <&gcc GCC_USB30_PRIM_BCR>;
+			power-domains = <&gcc USB30_PRIM_GDSC>;
 
 			interrupts-extended = <&intc GIC_SPI 144 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "pwr_event";
