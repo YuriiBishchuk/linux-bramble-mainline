@@ -393,6 +393,7 @@
 				interrupts = <GIC_SPI 240 IRQ_TYPE_LEVEL_HIGH>;
 				phys = <&usb_1_hsphy>, <&usb_1_qmpphy QMP_USB43DP_USB3_PHY>;
 				phy-names = "usb2-phy", "usb3-phy";
+				linux,sysdev_is_parent;
 				maximum-speed = "high-speed";
 				dr_mode = "peripheral";
 				tx-fifo-resize;
