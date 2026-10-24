@@ -126,7 +126,7 @@
 		reg = <0x0 0x17c10000 0x0 0x1000>;
 		clocks = <&sleep_clk>;
 		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	reserved_memory: reserved-memory {
@@ -400,6 +400,7 @@
 				snps,has-lpm-erratum;
 				snps,hird-threshold = /bits/ 8 <0x10>;
 				snps,dis_u2_susphy_quirk;
+				snps,dis_u3_susphy_quirk;
 				snps,dis_enblslpm_quirk;
 				snps,dis-u1-entry-quirk;
 				snps,dis-u2-entry-quirk;
