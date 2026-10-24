@@ -1,0 +1,191 @@
+diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
+index 1c86e7e98..0f5328091 100644
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -352,6 +352,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sm6375-sony-xperia-murray-pdx225.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm7125-xiaomi-curtana.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm7125-xiaomi-joyeuse.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm7225-fairphone-fp4.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= sm7250-google-bramble.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm7325-motorola-dubai.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm7325-motorola-dubai-csot.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm7325-motorola-dubai-tianma.dtb
+diff --git a/certs/Makefile b/certs/Makefile
+index 3ee1960f9..bb1de44a6 100644
+--- a/certs/Makefile
++++ b/certs/Makefile
+@@ -85,7 +85,7 @@ $(obj)/x509_revocation_list: $(CONFIG_SYSTEM_REVOCATION_KEYS) $(obj)/extract-cer
+ 
+ targets += x509_revocation_list
+ 
+-hostprogs := extract-cert
++hostprogs-$(CONFIG_SYSTEM_TRUSTED_KEYRING) := extract-cert
+ 
+ HOSTCFLAGS_extract-cert.o = $(shell $(HOSTPKG_CONFIG) --cflags libcrypto 2> /dev/null) -I$(srctree)/scripts
+ HOSTLDLIBS_extract-cert = $(shell $(HOSTPKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto)
+diff --git a/drivers/clk/qcom/Kconfig b/drivers/clk/qcom/Kconfig
+index d1fc9bf87..b8245b130 100644
+--- a/drivers/clk/qcom/Kconfig
++++ b/drivers/clk/qcom/Kconfig
+@@ -1630,6 +1630,15 @@ config SM_GCC_6350
+ 	  Say Y if you want to use peripheral devices such as UART,
+ 	  SPI, I2C, USB, SD/UFS, PCIe etc.
+ 
++config SM_GCC_7250
++	tristate "SM7250 Global Clock Controller"
++	depends on ARM64 || COMPILE_TEST
++	default ARCH_QCOM
++	help
++	  Support for the global clock controller on SM7250 devices.
++	  Say Y if you want to use peripheral devices such as UART,
++	  SPI, I2C, USB, SD/UFS, PCIe etc.
++
+ config SM_GCC_6375
+ 	tristate "SM6375 Global Clock Controller"
+ 	depends on ARM64 || COMPILE_TEST
+diff --git a/drivers/clk/qcom/Makefile b/drivers/clk/qcom/Makefile
+index daf25d583..0add2968a 100644
+--- a/drivers/clk/qcom/Makefile
++++ b/drivers/clk/qcom/Makefile
+@@ -181,6 +181,7 @@ obj-$(CONFIG_SM_GCC_4450) += gcc-sm4450.o
+ obj-$(CONFIG_SM_GCC_6115) += gcc-sm6115.o
+ obj-$(CONFIG_SM_GCC_6125) += gcc-sm6125.o
+ obj-$(CONFIG_SM_GCC_6350) += gcc-sm6350.o
++obj-$(CONFIG_SM_GCC_7250) += gcc-sm7250.o
+ obj-$(CONFIG_SM_GCC_6375) += gcc-sm6375.o
+ obj-$(CONFIG_SM_GCC_7150) += gcc-sm7150.o
+ obj-$(CONFIG_SM_GCC_8150) += gcc-sm8150.o
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
+index 795e8ec7e..de5621eff 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
+@@ -682,8 +682,7 @@ static struct arm_smmu_device *qcom_smmu_create(struct arm_smmu_device *smmu,
+ 
+ 	/* Check to make sure qcom_scm has finished probing */
+ 	if (!qcom_scm_is_available())
+-		return ERR_PTR(dev_err_probe(smmu->dev, -EPROBE_DEFER,
+-			"qcom_scm not ready\n"));
++		dev_warn(smmu->dev, "qcom_scm not ready yet, continuing without wait-safe\n");
+ 
+ 	qsmmu = devm_krealloc(smmu->dev, smmu, sizeof(*qsmmu), GFP_KERNEL);
+ 	if (!qsmmu)
+@@ -761,6 +760,7 @@ static const struct of_device_id __maybe_unused qcom_smmu_impl_of_match[] = {
+ 	{ .compatible = "qcom,sm6375-smmu-v2", .data = &qcom_smmu_v2_data },
+ 	{ .compatible = "qcom,sm6375-smmu-500", .data = &qcom_smmu_500_impl0_data },
+ 	{ .compatible = "qcom,sm7150-smmu-v2", .data = &qcom_smmu_v2_data },
++	{ .compatible = "qcom,sm7250-smmu-500", .data = &qcom_smmu_500_impl0_data },
+ 	{ .compatible = "qcom,sm8150-smmu-500", .data = &qcom_smmu_500_impl0_data },
+ 	{ .compatible = "qcom,sm8250-smmu-500", .data = &qcom_smmu_500_impl0_data },
+ 	{ .compatible = "qcom,sm8350-smmu-500", .data = &qcom_smmu_500_impl0_data },
+diff --git a/drivers/pinctrl/qcom/Kconfig.msm b/drivers/pinctrl/qcom/Kconfig.msm
+index 42875457b..dc771dbbf 100644
+--- a/drivers/pinctrl/qcom/Kconfig.msm
++++ b/drivers/pinctrl/qcom/Kconfig.msm
+@@ -516,6 +516,15 @@ config PINCTRL_MILOS
+ 	  Qualcomm Technologies Inc TLMM block found on the Qualcomm
+ 	  Technologies Inc Milos platform.
+ 
++config PINCTRL_SM7250
++	tristate "Qualcomm SM7250 pin controller driver"
++	depends on ARM64 || COMPILE_TEST
++	default ARCH_QCOM
++	help
++	  This is the pinctrl, pinmux, pinconf and gpiolib driver for the
++	  Qualcomm Technologies Inc TLMM block found on the Qualcomm
++	  Technologies Inc SM7250 platform.
++
+ config PINCTRL_SM8150
+ 	tristate "Qualcomm SM8150 pin controller driver"
+ 	depends on ARM64 || COMPILE_TEST
+diff --git a/drivers/pinctrl/qcom/Makefile b/drivers/pinctrl/qcom/Makefile
+index 43ecd246a..ef8d12978 100644
+--- a/drivers/pinctrl/qcom/Makefile
++++ b/drivers/pinctrl/qcom/Makefile
+@@ -70,6 +70,7 @@ obj-$(CONFIG_PINCTRL_SM6350) += pinctrl-sm6350.o
+ obj-$(CONFIG_PINCTRL_SM6350_LPASS_LPI) += pinctrl-sm6350-lpass-lpi.o
+ obj-$(CONFIG_PINCTRL_SM6375) += pinctrl-sm6375.o
+ obj-$(CONFIG_PINCTRL_SM7150) += pinctrl-sm7150.o
++obj-$(CONFIG_PINCTRL_SM7250) += pinctrl-sm7250.o
+ obj-$(CONFIG_PINCTRL_SM8150) += pinctrl-sm8150.o
+ obj-$(CONFIG_PINCTRL_SM8250) += pinctrl-sm8250.o
+ obj-$(CONFIG_PINCTRL_SM8250_LPASS_LPI) += pinctrl-sm8250-lpass-lpi.o
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index ee8372356..910a61813 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -449,7 +449,8 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned int cmd,
+ 
+ 	if (saved_config) {
+ 		reg = dwc3_readl(dwc, DWC3_GUSB2PHYCFG(0));
+-		reg |= saved_config;
++		if (!dwc->dis_u2_susphy_quirk)
++			reg |= (saved_config & ~DWC3_GUSB2PHYCFG_SUSPHY);
+ 		dwc3_writel(dwc, DWC3_GUSB2PHYCFG(0), reg);
+ 	}
+ 
+@@ -2710,7 +2711,8 @@ static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on)
+ 
+ 	if (saved_config) {
+ 		reg = dwc3_readl(dwc, DWC3_GUSB2PHYCFG(0));
+-		reg |= saved_config;
++		if (!dwc->dis_u2_susphy_quirk)
++			reg |= (saved_config & ~DWC3_GUSB2PHYCFG_SUSPHY);
+ 		dwc3_writel(dwc, DWC3_GUSB2PHYCFG(0), reg);
+ 	}
+ 
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index 4eb1bf979..0156b9cfd 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -7,6 +7,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
++#include <linux/kthread.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+@@ -103,6 +104,19 @@ static int qcom_wdt_ping(struct watchdog_device *wdd)
+ 	return 0;
+ }
+ 
++static int qcom_wdt_feeder_fn(void *data)
++{
++	struct qcom_wdt *wdt = data;
++
++	sched_set_fifo(current);
++	pr_info("qcom-wdt: Dedicated RT hardware feeder thread active (petting every 1000ms)\n");
++	while (!kthread_should_stop()) {
++		writel(1, wdt_addr(wdt, WDT_RST));
++		msleep(1000);
++	}
++	return 0;
++}
++
+ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
+ 				unsigned int timeout)
+ {
+@@ -340,15 +354,15 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 	watchdog_init_timeout(&wdt->wdd, 0, dev);
+ 
+ 	/*
+-	 * If WDT is already running, call WDT start which
+-	 * will stop the WDT, set timeouts as bootloader
+-	 * might use different ones and set running bit
+-	 * to inform the WDT subsystem to ping the WDT
++	 * Keep the hardware watchdog petted and continuously fed
++	 * by the dedicated kernel feeder thread.
+ 	 */
+-	if (qcom_wdt_is_running(&wdt->wdd)) {
+-		qcom_wdt_start(&wdt->wdd);
+-		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+-	}
++	qcom_wdt_start(&wdt->wdd);
++	set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
++	qcom_wdt_ping(&wdt->wdd);
++
++	kthread_run(qcom_wdt_feeder_fn, wdt, "qcom_wdt_feed");
++	dev_info(dev, "qcom-wdt: hardware watchdog running with dedicated feeder thread\n");
+ 
+ 	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+ 	if (ret)

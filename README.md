@@ -22,7 +22,29 @@ This repository houses the mainline Linux kernel adaptation for the Google Pixel
 
 ---
 
-## 2. Kernel Coding & Submission Guidelines
+## 3. Building Against Upstream Linux 7.3
+
+1. Clone vanilla Linux 7.3:
+   ```bash
+   git clone --depth=1 -b v7.3 https://github.com/torvalds/linux.git linux-7.3-mainline
+   cd linux-7.3-mainline
+   ```
+2. Apply the SM7250 adaptation patch:
+   ```bash
+   git apply /path/to/linux-bramble-mainline/patches/sm7250-kernel-adaptation.patch
+   ```
+3. Copy board DTS and driver fragments into tree:
+   ```bash
+   cp /path/to/linux-bramble-mainline/arch/arm64/boot/dts/qcom/* arch/arm64/boot/dts/qcom/
+   cp /path/to/linux-bramble-mainline/drivers/clk/qcom/gcc-sm7250.c drivers/clk/qcom/
+   cp /path/to/linux-bramble-mainline/drivers/pinctrl/qcom/pinctrl-sm7250.c drivers/pinctrl/qcom/
+   cp /path/to/linux-bramble-mainline/include/dt-bindings/clock/qcom,sm7250-gcc.h include/dt-bindings/clock/
+   ```
+4. Build `Image.lz4` and DTBs:
+   ```bash
+   make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+   make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image.lz4 dtbs
+   ```
 
 All contributions to this repository must follow the Linux Kernel upstream protocol:
 1. **Developer Certificate of Origin (DCO)**: All commits must be signed off (`git commit -s`).
