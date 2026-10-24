@@ -383,6 +383,8 @@
 			interrupts-extended = <&intc GIC_SPI 144 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "pwr_event";
 
+			qcom,select-utmi-as-pipe-clk;
+
 			status = "disabled";
 
 			usb_1_dwc3: usb@a600000 {
