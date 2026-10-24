@@ -169,5 +169,6 @@
 
 /* GDSC indices */
 #define USB30_PRIM_GDSC					0
+#define UFS_PHY_GDSC					1
 
 #endif

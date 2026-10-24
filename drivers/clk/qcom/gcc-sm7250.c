@@ -2452,8 +2452,17 @@ static struct gdsc usb30_prim_gdsc = {
 	.pwrsts = PWRSTS_RET_ON,
 };
 
+static struct gdsc ufs_phy_gdsc = {
+	.gdscr = 0x77004,
+	.pd = {
+		.name = "ufs_phy_gdsc",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+};
+
 static struct gdsc *gcc_lito_gdscs[] = {
 	[USB30_PRIM_GDSC] = &usb30_prim_gdsc,
+	[UFS_PHY_GDSC] = &ufs_phy_gdsc,
 };
 
 static const struct qcom_cc_desc gcc_lito_desc = {

@@ -107,3 +107,11 @@
 &usb_1 {
 	status = "okay";
 };
+
+&ufs_mem_phy {
+	status = "okay";
+};
+
+&ufs_mem_hc {
+	status = "okay";
+};
